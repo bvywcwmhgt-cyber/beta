@@ -255,26 +255,26 @@ function last5Dots(divId, teamId){
     .slice()
     .sort((a,b)=> (a.round-b.round) || (a.createdAt-b.createdAt));
 
-  // only completed matches
-  const completed = matches.filter(m =>
-    (m.homeId===teamId || m.awayId===teamId) &&
-    m.homeScore != null && m.awayScore != null
-  );
+  const involved = matches
+    .filter(m => m.homeId===teamId || m.awayId===teamId)
+    .filter(m => m.homeScore != null && m.awayScore != null) // ★完了試合だけ
+    .sort((a,b)=> (b.round-a.round) || (b.createdAt-a.createdAt));
 
-  // take last 5 completed (oldest -> newest)
-  const last5 = completed.slice(-5);
-
-  const dots = [];
-  for(const m of last5){
+  const results = [];
+  for(const m of involved){
+    if(results.length >= 5) break;
     const isHome = m.homeId===teamId;
     const gf = isHome ? m.homeScore : m.awayScore;
     const ga = isHome ? m.awayScore : m.homeScore;
-    if(gf>ga) dots.push("W");
-    else if(gf<ga) dots.push("L");
-    else dots.push("D");
+    if(gf>ga) results.push("W");
+    else if(gf<ga) results.push("L");
+    else results.push("D");
   }
-  while(dots.length < 5) dots.push("");
-  return dots;
+
+  // 表示は「左から順に消化分」→ 残りは未消化（枠）
+  results.reverse(); // 古い→新しい
+  while(results.length < 5) results.push("P");
+  return results;
 }
 
 function rankStripColor(divId, rank){
@@ -435,12 +435,13 @@ function renderStandings(){
     teamCell.appendChild(pill);
 
         const formTd = document.createElement("td");
+    formTd.className = "col-form";
     const marks = document.createElement("div");
     marks.className = "formDots";
     for(const d of last5Dots(div.id, r.teamId)){
-      const m = document.createElement("span");
-      m.className = "formDot " + (d==="W" ? "formDot--win" : d==="D" ? "formDot--draw" : d==="L" ? "formDot--loss" : "formDot--empty");
-      marks.appendChild(m);
+      const dot = document.createElement("span");
+      dot.className = "dot " + (d==="W" ? "dot--win" : d==="D" ? "dot--draw" : d==="L" ? "dot--loss" : "dot--pending");
+      marks.appendChild(dot);
     }
     formTd.appendChild(marks);
 

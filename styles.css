@@ -138,13 +138,17 @@ body{
 .muted2{color:var(--muted2)}
 
 .formDots{display:flex;justify-content:center;gap:6px;align-items:center}
+.formMark{display:inline-block;width:14px;text-align:center;font-size:12px;line-height:1;}
+.formMark--win{color:var(--win)}
+.formMark--draw{color:var(--draw)}
+.formMark--loss{color:var(--loss)}
+.formMark--pending{color:transparent}
 
-.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.12)}
+.dot{width:10px;height:10px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:transparent;display:inline-block}
 .dot--win{background:var(--win);border-color:rgba(0,0,0,.15)}
 .dot--draw{background:var(--draw);border-color:rgba(0,0,0,.10)}
 .dot--loss{background:var(--loss);border-color:rgba(0,0,0,.15)}
 .dot--pending{background:transparent;border-color:transparent}
-.dot--pending::after{content:""}
 
 .list{padding:10px 10px 12px;display:flex;flex-direction:column;gap:8px;max-height:calc(50vh - 130px);overflow:auto}
 .item{
@@ -236,3 +240,10 @@ body{
   display:flex;
   align-items:center;
 }
+
+/* --- Form dots (last 5) --- */
+.formDots{display:flex;justify-content:center;gap:8px}
+.dot--pending{background:transparent;border-color:rgba(255,255,255,.22)}
+.dot--win{background:var(--win);border-color:rgba(0,0,0,.15)}
+.dot--draw{background:var(--draw);border-color:rgba(0,0,0,.10)}
+.dot--loss{background:var(--loss);border-color:rgba(0,0,0,.15)}
