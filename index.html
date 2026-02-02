@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>League UI</title>
+
+  <!-- Thin-ish font like the screenshot -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="topbar__left">
+        <div class="brand">
+          <div class="brand__logo" id="brandLogo"></div>
+          <div class="brand__meta">
+            <div class="brand__league" id="leagueName">League</div>
+            <div class="brand__season" id="seasonName">Season 1</div>
+          </div>
+        </div>
+
+        <div class="seg">
+          <button class="seg__btn" id="btnPrevSeason" title="前のシーズン">‹</button>
+          <button class="seg__btn" id="btnNextSeason" title="次のシーズン">›</button>
+        </div>
+      </div>
+
+      <div class="topbar__right">
+        <button class="btn btn--ghost" id="btnAdminLock">管理ロック</button>
+        <button class="btn" id="btnManage">管理</button>
+        <button class="btn" id="btnSeasonEnd">シーズン終了</button>
+        <button class="btn" id="btnNewSeason">新シーズン作成</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="card standings">
+        <div class="card__head">
+          <div class="tabs" id="divisionTabs"></div>
+
+          <div class="standings__tools">
+            <button class="btn btn--ghost" id="btnRankColors">順位カラー編集</button>
+          </div>
+        </div>
+
+        <div class="tableWrap">
+          <table class="table" id="standingsTable">
+            <thead>
+              <tr>
+                <th class="col-rank">順位</th>
+                <th class="col-team">チーム</th>
+                <th class="col-n">試合</th>
+                <th class="col-n">勝</th>
+                <th class="col-n">分</th>
+                <th class="col-n">負</th>
+                <th class="col-n">得点</th>
+                <th class="col-n">失点</th>
+                <th class="col-n">差</th>
+                <th class="col-n">勝点</th>
+                <th class="col-form">調子</th>
+              </tr>
+            </thead>
+            <tbody id="standingsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="side">
+        <section class="card schedule">
+          <div class="card__head">
+            <div class="card__title">試合日程</div>
+            <div class="card__actions">
+              <button class="btn btn--ghost" id="btnGenerateSchedule">日程生成</button>
+            </div>
+          </div>
+
+          <div class="subhead">
+            <div class="subheadRow">
+              <div id="scheduleSubhead">Div.1 第1節</div>
+              <div class="subheadRight">
+                <button class="miniBtn" id="btnRoundPrev">‹</button>
+                <div class="miniPill" id="roundPill">1</div>
+                <button class="miniBtn" id="btnRoundNext">›</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="list" id="scheduleList"></div>
+        </section>
+
+        <section class="card results">
+          <div class="card__head">
+            <div class="card__title">結果</div>
+            <div class="card__actions">
+              <button class="btn btn--ghost" id="btnShowAllResults">全結果</button>
+            </div>
+          </div>
+
+          <div class="subhead" id="resultsSubhead">最新</div>
+          <div class="list" id="resultsList"></div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="modalRoot hidden" id="modalRoot" aria-hidden="true">
+    <div class="modalBack" id="modalBack"></div>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal__head">
+        <div class="modal__title" id="modalTitle">Modal</div>
+        <button class="iconBtn" id="modalClose" aria-label="閉じる">✕</button>
+      </div>
+      <div class="modal__body" id="modalBody"></div>
+      <div class="modal__foot" id="modalFoot"></div>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
