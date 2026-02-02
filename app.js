@@ -10,6 +10,11 @@ const STORAGE_KEY = "league_ui_v1";
 
 const $ = (sel, el=document) => el.querySelector(sel);
 const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
+
+function onClick(sel, fn){
+  const el = $(sel);
+  if(el) el.onclick = fn;
+}
 const uid = () => Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(2,6);
 
 function toast(msg){
@@ -250,14 +255,17 @@ function last5Dots(divId, teamId){
     .slice()
     .sort((a,b)=> (a.round-b.round) || (a.createdAt-b.createdAt));
 
-  const involved = matches
-    .filter(m => m.homeId===teamId || m.awayId===teamId)
-    .sort((a,b)=> (b.round-a.round) || (b.createdAt-a.createdAt));
+  // only completed matches
+  const completed = matches.filter(m =>
+    (m.homeId===teamId || m.awayId===teamId) &&
+    m.homeScore != null && m.awayScore != null
+  );
+
+  // take last 5 completed (oldest -> newest)
+  const last5 = completed.slice(-5);
 
   const dots = [];
-  for(const m of involved){
-    if(dots.length >= 5) break;
-    if(m.homeScore == null || m.awayScore == null){ dots.push("P"); continue; }
+  for(const m of last5){
     const isHome = m.homeId===teamId;
     const gf = isHome ? m.homeScore : m.awayScore;
     const ga = isHome ? m.awayScore : m.homeScore;
@@ -265,8 +273,8 @@ function last5Dots(divId, teamId){
     else if(gf<ga) dots.push("L");
     else dots.push("D");
   }
-  while(dots.length < 5) dots.push("P");
-  return dots.reverse();
+  while(dots.length < 5) dots.push("");
+  return dots;
 }
 
 function rankStripColor(divId, rank){
@@ -431,8 +439,7 @@ function renderStandings(){
     marks.className = "formDots";
     for(const d of last5Dots(div.id, r.teamId)){
       const m = document.createElement("span");
-      m.className = "formMark " + (d==="W" ? "formMark--win" : d==="D" ? "formMark--draw" : d==="L" ? "formMark--loss" : "formMark--pending");
-      m.textContent = (d==="W" || d==="D" || d==="L") ? "○" : "";
+      m.className = "formDot " + (d==="W" ? "formDot--win" : d==="D" ? "formDot--draw" : d==="L" ? "formDot--loss" : "formDot--empty");
       marks.appendChild(m);
     }
     formTd.appendChild(marks);
@@ -1546,67 +1553,25 @@ function openSeasonEndModal(){
 }
 
 // ---------- Buttons ----------
-$("#btnManage").onclick = openManageModal;
-$("#btnNewSeason").onclick = ()=>{ createNewSeason(); render(); };
-$("#btnPrevSeason").onclick = ()=> gotoSeason(-1);
-$("#btnNextSeason").onclick = ()=> gotoSeason(1);
+onClick("#btnLeagueConnect", ()=>{ toast("（準備中）共有コード接続はFirebase版で対応します"); });
+onClick("#btnAdminLock", openAdminLockModal);
+onClick("#btnSeasonEnd", openSeasonEndModal);
 
-$("#btnRankColors").onclick = openRankColorModal;
-$("#btnGenerateSchedule").onclick = openGenerateScheduleModal;
+onClick("#btnManage", openManageModal);
+onClick("#btnNewSeason", ()=>{ createNewSeason(); render(); });
+onClick("#btnPrevSeason", ()=> gotoSeason(-1));
+onClick("#btnNextSeason", ()=> gotoSeason(1));
 
-$("#btnRoundPrev").onclick = ()=>{ state.ui.scheduleRound = Math.max(1, (state.ui.scheduleRound||1)-1); saveState(); renderSchedule(); };
-$("#btnRoundNext").onclick = ()=>{
-  const season = getActiveSeason();
-  const div = getActiveDiv();
-  const matches = season.scheduleByDiv[div.id] || [];
-  const maxRound = matches.length ? Math.max(...matches.map(m=>m.round)) : 1;
-  state.ui.scheduleRound = Math.min(maxRound, (state.ui.scheduleRound||1)+1);
-  saveState(); renderSchedule();
-};
+onClick("#btnRankColors", openRankColorModal);
+onClick("#btnGenerateSchedule", openGenerateScheduleModal);
 
-$("#btnShowAllResults").onclick = ()=>{
-  const season = getActiveSeason();
-  const div = getActiveDiv();
-  const matches = (season.scheduleByDiv[div.id] || []).slice()
-    .sort((a,b)=> (b.round-a.round) || (b.createdAt-a.createdAt));
+onClick("#btnRoundPrev", ()=>{ state.ui.scheduleRound = Math.max(1, (state.ui.scheduleRound||1)-1); saveState(); renderSchedule(); });
+onClick("#btnRoundNext", ()=>{ state.ui.scheduleRound = (state.ui.scheduleRound||1)+1; saveState(); renderSchedule(); });
 
-  const body = document.createElement("div");
-  const list = document.createElement("div");
-  body.appendChild(list);
+onClick("#btnShowAllResults", openAllResultsModal);
 
-  const completed = matches.filter(m=>m.homeScore!=null && m.awayScore!=null);
-  if(completed.length===0){
-    const p = document.createElement("div");
-    p.className="small";
-    p.textContent="結果がまだありません。";
-    list.appendChild(p);
-  }else{
-    for(const m of completed){
-      const home = teamById(div.id, m.homeId);
-      const away = teamById(div.id, m.awayId);
-      const row = document.createElement("div");
-      row.className="rowLine";
-      row.innerHTML = `
-        <div class="rowLineLeft" style="flex:1">
-          <div class="small">${div.name} 第${m.round}節</div>
-          <div class="small">${home?.name || "Home"} vs ${away?.name || "Away"}</div>
-        </div>
-        <div class="pill">${m.homeScore}-${m.awayScore}</div>
-      `;
-      row.onclick = ()=> openResultModal(div.id, m.id);
-      list.appendChild(row);
-    }
-  }
-
-  const foot = document.createElement("div");
-  const close = document.createElement("button");
-  close.className="btn";
-  close.textContent="閉じる";
-  close.onclick=closeModal;
-  foot.appendChild(close);
-
-  openModal("全結果", body, foot);
-};
+applyAdminUI();
+const ss=document.getElementById("syncStatus"); if(ss) ss.textContent="JS OK";
 
 // Initial render
 render();

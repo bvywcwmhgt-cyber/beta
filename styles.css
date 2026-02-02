@@ -138,11 +138,6 @@ body{
 .muted2{color:var(--muted2)}
 
 .formDots{display:flex;justify-content:center;gap:6px;align-items:center}
-.formMark{display:inline-block;width:14px;text-align:center;font-size:12px;line-height:1;}
-.formMark--win{color:var(--win)}
-.formMark--draw{color:var(--draw)}
-.formMark--loss{color:var(--loss)}
-.formMark--pending{color:transparent}
 
 .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.12)}
 .dot--win{background:var(--win);border-color:rgba(0,0,0,.15)}
